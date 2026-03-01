@@ -1,65 +1,124 @@
-import Image from "next/image";
+"use client";
+
+import { TamboProvider, TamboComponent, useTambo, useTamboThreadInput } from "@tambo-ai/react";
+import { z } from "zod";
+import Graph from "@/components/generative/Graph";
+import InfoCard from "@/components/generative/InfoCard";
+import { Note } from "@/components/interactable/Note";
+import { SendIcon, Loader2 } from "lucide-react";
+
+// 1. Define available Generative Components
+const components: TamboComponent[] = [
+  {
+    name: "Graph",
+    description: "Displays data as charts using Recharts library. If no data is provided by the user, you MUST generate realistic mock data (e.g. 4-5 regions with random sales numbers) to demonstrate the chart.",
+    component: Graph,
+    propsSchema: z.object({
+      data: z.array(z.object({ name: z.string(), value: z.number() })),
+      type: z.enum(["line", "bar", "pie"]),
+    }),
+  },
+  {
+    name: "InfoCard",
+    description: "Displays informational text along with a relevant icon. Use this for answering general queries logically represented as a small card, like defining a term.",
+    component: InfoCard,
+    propsSchema: z.object({
+      title: z.string(),
+      description: z.string(),
+      iconName: z.enum(["bitcoin", "globe", "activity", "lightbulb", "info"]).optional(),
+    }),
+  }
+];
+
+const apiKey = process.env.NEXT_PUBLIC_TAMBO_API_KEY || "dummy_key_for_testing";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+    <TamboProvider components={components} apiKey={apiKey} userKey="test_user">
+      <main className="flex min-h-screen flex-col items-center p-8 sm:p-24 max-w-4xl mx-auto w-full gap-8">
+        <header className="w-full text-center space-y-2 mb-8">
+          <h1 className="text-4xl font-bold tracking-tight">Tambo Generative UI</h1>
+          <p className="text-muted-foreground">Experimenting with the Tambo React toolkit.</p>
+        </header>
+
+        <ChatInterface />
+
       </main>
+    </TamboProvider>
+  );
+}
+
+function ChatInterface() {
+  const { messages } = useTambo();
+  const { value, setValue, submit, isPending } = useTamboThreadInput();
+
+  return (
+    <div className="w-full flex flex-col gap-6 h-full flex-1 border border-border bg-card rounded-xl p-4 shadow-sm overflow-hidden">
+
+      {/* Messages View */}
+      <div className="flex-1 overflow-y-auto space-y-6 p-4">
+        {messages.length === 0 ? (
+          <div className="h-full flex items-center justify-center text-muted-foreground">
+            <p>Send a message to render a component...</p>
+          </div>
+        ) : (
+          messages.map((message) => {
+            const isUser = message.role === "user";
+            return (
+              <div key={message.id} className={`flex flex-col gap-2 ${isUser ? "items-end" : "items-start"}`}>
+
+                {/* Content representation */}
+                {message.content && (
+                  <div className={`flex flex-col gap-2 w-full ${isUser ? "items-end" : "items-start"}`}>
+                    {message.content.map((part, i) => {
+                      if (part.type === "text") {
+                        return (
+                          <div key={i} className={`px-4 py-2 rounded-2xl max-w-[80%] ${isUser ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"}`}>
+                            <p>{part.text}</p>
+                          </div>
+                        );
+                      }
+
+                      // Tambo Rendered Components appear here for "component" block types
+                      if (part.type === "component" && "renderedComponent" in part && part.renderedComponent) {
+                        return (
+                          <div key={i} className="w-full max-w-[90%] mt-2 self-center">
+                            {part.renderedComponent}
+                          </div>
+                        );
+                      }
+
+                      return null;
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Input Form */}
+      <form
+        onSubmit={(e) => { e.preventDefault(); submit(); }}
+        className="flex items-center gap-2 mt-auto relative"
+      >
+        <input
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="Try: Show me sales by region or Add a task note"
+          className="flex h-12 w-full rounded-full border border-input bg-transparent px-4 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 pr-12"
+          disabled={isPending}
+        />
+        <button
+          type="submit"
+          disabled={isPending || !value.trim()}
+          className="absolute right-1 top-1 h-10 w-10 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50 bg-transparent rounded-full"
+        >
+          {isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : <SendIcon className="h-5 w-5" />}
+        </button>
+      </form>
+
     </div>
   );
 }

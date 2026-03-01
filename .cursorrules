@@ -1,0 +1,3 @@
+# Agent Rules
+
+1. **Browser Subagent Restrictions**: Do not initiate or trigger the browser subagent (`browser_subagent` tool) unless the user explicitly requests you to open a browser, click something, or test the UI visually via the browser. For programmatic tasks, stick to terminal commands, file reading, and testing.
