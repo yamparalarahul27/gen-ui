@@ -37,7 +37,7 @@ export default function Home() {
     <TamboProvider components={components} apiKey={apiKey} userKey="test_user">
       <main className="flex min-h-screen flex-col items-center p-8 sm:p-24 max-w-4xl mx-auto w-full gap-8">
         <header className="w-full text-center space-y-2 mb-8">
-          <h1 className="text-4xl font-bold tracking-tight">Tambo Generative UI</h1>
+          <h1 className="text-4xl font-bold tracking-tight">Tambo Experiment</h1>
           <p className="text-muted-foreground">Experimenting with the Tambo React toolkit.</p>
         </header>
 
@@ -53,7 +53,7 @@ function ChatInterface() {
   const { value, setValue, submit, isPending } = useTamboThreadInput();
 
   return (
-    <div className="w-full flex flex-col gap-6 h-full flex-1 border border-border bg-card rounded-xl p-4 shadow-sm overflow-hidden">
+    <div className="w-full flex flex-col gap-6 h-full flex-1 border border-border bg-card rounded-none p-4 shadow-sm overflow-hidden">
 
       {/* Messages View */}
       <div className="flex-1 overflow-y-auto space-y-6 p-4">

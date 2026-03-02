@@ -34,6 +34,7 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@tambo-ai/react": "^1.1.0",
     "@thesysai/genui-sdk": "^0.8.5",
+    "agentation": "^2.2.1",
     "ai": "^3.1.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

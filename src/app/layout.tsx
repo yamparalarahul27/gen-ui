@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "@crayonai/react-ui/styles/index.css";
 import TopNavigation from "@/components/navigation";
+import { AgentationProvider } from "@/components/agentation-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,6 +30,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
+        <AgentationProvider />
         <TopNavigation />
         <div className="flex-1 flex flex-col">
           {children}
