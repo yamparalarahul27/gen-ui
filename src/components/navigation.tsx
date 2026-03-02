@@ -10,6 +10,8 @@ export default function TopNavigation() {
     const tabs = [
         { name: "Tambo", href: "/" },
         { name: "C1Thesys", href: "/c1thesys" },
+        { name: "Gemini (Raw)", href: "/gemini/raw" },
+        { name: "Gemini (Vercel SDK)", href: "/gemini/vercel" },
     ];
 
     return (
