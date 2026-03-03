@@ -2,18 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import OpenAI from 'openai';
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 
-const client = new OpenAI({
-    apiKey: process.env.THESYS_API_KEY,
-    baseURL: 'https://api.thesys.dev/v1/embed',
-});
-
-// Since this is a demo to render components, we use a simple in-memory store.
-// In a real application, you'd use a database keyed by thread/session ID.
 let conversationHistory: ChatCompletionMessageParam[] = [
     { role: "system", content: "You are a helpful assistant that generates UI components using the C1 Generative UI API." }
 ];
 
 export async function POST(req: NextRequest) {
+    const client = new OpenAI({
+        apiKey: process.env.THESYS_API_KEY,
+        baseURL: 'https://api.thesys.dev/v1/embed',
+    });
     try {
         const body = await req.json();
         const incomingMessages = body.messages;
